@@ -7,28 +7,29 @@ Yahtzee!!
 import time
 import random
 
+
 turns = 0
 scoreDis = 0
 holdem = "" 
 playCount = 0
 cheatTastic = 0
-played = {"one":0, "two":0, "three":0, "four":0, "five":0, "six":0, "fh":0, "yz":0, "4o":0, "3o":0, "sh":0, "sl":0}
-
-
-
-holdLib = {"HRRRR":0, "HHRRR":1, "HHHRR":2, "HHHHR":3, "HHHHH":4, "RRRRR":5, "RHRRR":6, "RHHRR":7, "RHHHR":8, "RHHHH":9, 
-           "RRHHH":10, "RRRHH":11, "RRRRH":12, "RHRRR":13, "RHHRR":14, "RHHHR":15, "RHHHH":16, "RRHRR":17, "RRHHR":18,
-           "RRRHR":19, "RRRHH":20, "HRRHR":21, "HRRRH":22           }
+played = {"one":0, "two":0, "three":0, "four":0, "five":0, "six":0, "fh":0, "yz":0, "4o":0, "3o":0, "sh":0, "sl":0, "ch":0}
+foul = 0
+empty = 0
 
 gameBegan = 0
 
 def newGame():
     global cheatTastic
+    global foul
+    global empty
+    foul = 0
+    empty = 0
     scoreDis = 0
     playCount = 0
     for i in played:
         played[i] = 0
-    print(scoreDis, playCount, played)
+    #print(scoreDis, playCount, played)
 
 def gameLoop():
     global turns
@@ -37,7 +38,6 @@ def gameLoop():
     playDice = []
     
     
-       
     def start():
         global holdem
         global played
@@ -46,6 +46,15 @@ def gameLoop():
             dieRoll = random.randint(1,6)
             playDice.append(dieRoll)
         hold(playDice)   
+
+    def used():
+        list = []
+        for i in played:
+            if played[i] == "ch" and "ch" > 2:
+                list.append(i)
+            if played[i] > 0 and played[i] != "ch":
+                list.append(i)
+        return list
 
     def subRoll(dice, hold):
         subDice = []
@@ -65,18 +74,23 @@ def gameLoop():
         global playCount
         global gameBegan
         global cheatTastic
+        global empty
+        global foul
         diceCount = 0
-        foul = 0
-
+        
+    #Check for cheating or lack of playable rolls.
         if cheatTastic == 3:
             return
-
+        if empty == 3:
+                print("You don't seems to have any more plays")
+                print(f"You scored {scoreDis} points!")
+                print("Thanks For Playing!!")
+                gameBegan = 2
+                return
         for num in range(1,7):
             if dice.count(num) != 5:
                 diceCount += 1
-
-            
-        if diceCount == 6 and playCount == 9: #Move count to 11 once straights are in.
+        if diceCount == 6 and playCount == 11: 
             print(f"Game Over! You Scored: {scoreDis}, and you got {played['yz']} Yahtzeeeeee's")
             gameBegan = 2
             return
@@ -87,169 +101,183 @@ def gameLoop():
             (3o)f a Kind (that's the letter o)
             (4o)f a Kind (that's the letter o)
             (fh)Full House (that's 2 of one and thee of another)
+            (sl)Straight Low 
+            (sh)Straight High 
+            (ch)Chance you can literally play anything and can choose this two times.
             (yz)YAHTZEE!!!
             
                           {dice}
-        \n""").lower()
-        #print(dice)
+    \n""").lower()
+    
+    #Scoring Logic check for user input for what they want to play and then verify the dice are there then payout.
         if userChoice == "1":
-            if played["one"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 1:
                     foul += 1
-                    
-            if foul == 0:
+            if played["one"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["one"] = 1 
-                    playCount += 1            
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["one"] = 1 
+                playCount += 1
+                print(scoreDis)            
         
         elif userChoice == "2":
-            if played["two"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 2:
                     foul += 1
-                    
-            if foul == 0:
+            if played["two"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["two"] = 1
-                    playCount += 1
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["two"] = 1 
+                playCount += 1 
         
         elif userChoice == "3":
-            if played["three"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 3:
                     foul += 1
-                    
-            if foul == 0:
+            if played["three"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["three"] = 1
-                    playCount += 1
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["three"] = 1 
+                playCount += 1 
         
         elif userChoice == "4":
-            if played["four"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 4:
                     foul += 1
-                    
-            if foul == 0:
+            if played["four"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["four"] = 1
-                    playCount += 1
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["four"] = 1 
+                playCount += 1 
         
         elif userChoice == "5":
-            if played["five"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 5:
                     foul += 1
-                    
-            if foul == 0:
+            if played["five"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["five"] = 1
-                    playCount += 1
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["five"] = 1 
+                playCount += 1 
 
         elif userChoice == "6":
-            if played["six"] == 1:
-                print("No More Plays Available! Try Again!")
-                score(dice)
             for i in dice:
                 if i == 6:
                     foul += 1
-                    
-            if foul == 0:
+            if played["six"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            elif foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-            for i in dice:
-                if i == int(userChoice):
-                    scoreDis += i
-                    played["six"] = 1
-                    playCount += 1
+            else:
+                for i in dice:
+                    if i == int(userChoice):
+                        scoreDis += i
+                played["six"] = 1 
+                playCount += 1 
 
         elif userChoice == "3o":
             if played["3o"] == 1:
                 print("No More Plays Available! Try Again!")
+                empty += 1
                 score(dice)
-            for n in range(1,7):
-                value = dice.count(n)
-                if value == 3:
-                    scoreDis += n * 3
-                    played["3o"] = 1
-                    playCount += 1
-                    foul += 1
-                    
+            else:
+                for n in range(1,7):
+                    value = dice.count(n)
+                    if value == 3:
+                        scoreDis += n * 3
+                        played["3o"] = 1
+                        playCount += 1
+                        foul += 1
             if foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-
+                    
         elif userChoice == "4o":
             if played["4o"] == 1:
                 print("No More Plays Available! Try Again!")
+                empty += 1
                 score(dice)
-            for n in range(1,7):
-                value = dice.count(n)
-                if value == 4:
-                    scoreDis += n * 4
-                    played["4o"] = 1
-                    playCount += 1
-                    foul += 1
-                    
+            else:
+                for n in range(1,7):
+                    value = dice.count(n)
+                    if value == 4:
+                        scoreDis += n * 4
+                        played["4o"] = 1
+                        playCount += 1
+                        foul += 1
             if foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
-                
-
+                    
         elif userChoice == "fh":
+            fullHouse = 0
             if played["fh"] == 1:
                 print("No More Plays Available! Try Again!")
+                empty += 1
                 score(dice)
-            fullHouse = 0
-            for n in range(1,7):
-                three = (3*n)
-                two = (2*n)
-                value = dice.count(n)
-                if value == 3:
-                    fullHouse += three
-                    foul += 3
-                elif value == 2:
-                    fullHouse += two
-                    foul += 2
+            else:
+                for n in range(1,7):
+                    three = (3*n)
+                    two = (2*n)
+                    value = dice.count(n)
+                    if value == 3:
+                        fullHouse += three
+                        foul += 3
+                    elif value == 2:
+                        fullHouse += two
+                        foul += 2
             if fullHouse >= 7:
                 scoreDis += 25
                 played["fh"] = 1
@@ -259,6 +287,49 @@ def gameLoop():
                 cheatTastic += 1
                 score(dice)
 
+        elif userChoice == "sl":
+            slow = [1,2,3,4,5]
+            if played["sl"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            else:
+                dice.sort()
+                if dice == slow:
+                    scoreDis += 30
+                    played["sl"] = 1
+                    playCount += 1
+                else:
+                    print("That's not a low straight!")
+                    cheatTastic += 1
+
+        elif userChoice == "sh":
+            shigh = [2,3,4,5,6]
+            if played["sh"] == 1:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            else:
+                dice.sort()
+                if dice == shigh:
+                    scoreDis += 40
+                    played["sh"] = 1
+                    playCount += 1
+                else:
+                    print("That's not a high straight!")
+                    cheatTastic += 1
+
+        elif userChoice == "ch":
+            if played["ch"] == 2:
+                print("No More Plays Available! Try Again!")
+                empty += 1
+                score(dice)
+            else:
+                for i in dice:
+                    scoreDis += i
+                played["ch"] = 1
+                playCount += 1            
+
         elif userChoice == "yz":
             yahtzee = 0
             for n in range(1,7):
@@ -267,35 +338,37 @@ def gameLoop():
                     scoreDis += 100
                     played["yz"] += 1
                     foul += 1
-                if yahtzee == 5:
+                elif yahtzee == 5:
                     scoreDis += 50
                     played["yz"] += 1
-                    foul += 1
-                
+                    foul += 1                
                     
             if foul == 0:
                 print("You Fool You Don't Have Any of Those. Try Again!")
                 cheatTastic += 1
                 score(dice)
 
-        print(playCount)        
-        print(f"\nYour score {scoreDis}\n")
+        #print(f"play count {playCount}")        
+        #print(f"\nYour score {scoreDis}\n")
             
 
-# This Func takes your initial die roll and prompts you to hold any you want.
+# This Func takes your initial die roll and prompts you to hold any you want and then puts you though another roll and then scoring.
     def hold(playDice):
         global turns
         global holdem
-        badInput = ["", " ", "\n", "/", ","]
+        global gameBegan
 
-        
+        print("          \\/Hands you have played\\/", f"Your score is: {scoreDis}")        
+        print(used())
         holdem = input(f"""
         Please choose to hold dice or roll again.
         Enter an R to roll and H to hold for each die. ex. HRRHR    
                     {playDice}
-                """).upper()
+                 """).upper()
         if holdem == "Q":
+            gameBegan = 3
             return
+        #Checks to make sure you put in 6 inputs and chose what to do with all your dice.
         elif len(holdem) >= 6 or len(holdem) <= 4:
             print("Don't think you understood make 5 inputs no spaces R and H only.")
             hold(playDice)
@@ -303,21 +376,16 @@ def gameLoop():
         for i in holdem:
             if i == "H" or i == "R":
                 pass
-            elif i == "Q":
-                return
             else:
                 print("Wrong Value Only Use H or R please")
                 hold(playDice)
+        turns += 1
         if holdem == "HHHHH":
             score(playDice)
             return
-        
-        turns += 1
-        """if holdem == "Q":
-            return"""
-        if turns == 3:
+        elif turns == 3:
             score(playDice)
-            return
+            return        
         
         playDice = subRoll(playDice, holdem)
                
@@ -353,6 +421,8 @@ while True:
         (N)ew Game or
         (Q)uit
 """).upper()
+    elif gameBegan == 3:
+        break
     gameBegan = 0
 
     if roll == "P":
@@ -365,7 +435,7 @@ while True:
         print("\nYou make me sad!")
         break
     elif roll == "N":
-        print(scoreDis, playCount, played)
+        #print(scoreDis, playCount, played)
         newGame()
     else:
         print("ERROR, ERROR!! But of course you knew that make a proper selection, this isn't yutzee!")
